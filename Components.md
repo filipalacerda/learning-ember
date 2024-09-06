@@ -156,3 +156,104 @@ A yielded block without a name is called default:
 </Card>
 
 ```
+
+## Helper Functions
+
+Helper functions are JavaScript functions that you can call from your template.
+
+Ember's template syntax limits what you can express to keep the structure of your application clear at a glance. When you need to compute something using JavaScript, you can use helper functions.
+
+### Local helper functions
+
+It's possible to use plain functions for helpers and modifiers. A plain helper function can be "local" to or defined on components and controllers.
+
+Create a `.js` file with the same name as the template's component:
+
+```javascript
+export default class Message extends Component {
+  substring = (string, start, end) => string.substring(start, end);
+}
+```
+
+usage:
+`@initial={{this.substring @username 0 1}}`
+
+#### Named arguments
+
+Helpers default to using positional arguments, but sometimes it can make the corresponding syntax {{substring @username 0 1}} a little hard to read. We see some numbers at the end but can't tell what exactly they mean. We can use named arguments to make the substring helper easier to read.:
+`@initial={{substring @username start=0 end=1}}`
+
+Helpers take named arguments as a JavaScript object. All named arguments are grouped into an "options object" as the last parameter:
+`substring = (string, options) => string.substring(options.start, options.end);`
+
+You can mix positional and named arguments to make your templates easy to read:
+
+```javascript
+hbs
+{{this.calculate 1 2 op="add"}}
+js
+export default class Calculator extends Component {
+  calculate(first, second, options) {
+    // ...
+  }
+}
+```
+
+#### Nested Helpers
+
+Sometimes, you might see helpers invoked by placing them inside parentheses, (). This means that a Helper is being used inside of another Helper or Component. This is referred to as a "nested" Helper Invocation. Parentheses must be used because curly braces {{}} cannot be nested:
+
+`{{this.sum (this.multiply 2 4) 2}}`
+In this example, we are using a helper to multiply 2 and 4 before passing the value into {{sum}}.
+
+### Global Helper Functions
+
+Ember provides a way to use global helpers. We define global helper functions in the app/helpers folder. Once defined, they will be available to use directly inside all templates in your app.
+
+Example:
+
+```javascript
+app / helpers / substring.js;
+export default function substring(string, start, end) {
+  return string.substring(start, end);
+}
+```
+
+#### Classic Helpers
+
+Sometimes, you may encounter helpers defined using the helper function:
+
+```javascript
+app / helpers / substring.js;
+import { helper } from "@ember/component/helper";
+
+function substring(positional, { start, end }) {
+  const string = positional[0];
+  return string.substring(start || 0, end);
+}
+
+export default helper(substring);
+```
+
+By wrapping the function using the helper() function, Ember will extract the arguments passed from the template. It'll then call your function with an array (positional arguments passed in the template) and an object (named arguments passed in the template).
+This style mostly exists for backwards compatibility reasons, but the other advantage is that it makes it easier to untangle the positional and named arguments
+
+#### Class Helpers
+
+Classic helpers can also be defined using class syntax. For instance, we could define the substring helper using classes instead.
+
+```javascript
+app / helpers / substring.js;
+import Helper from "@ember/component/helper";
+
+export default class Substring extends Helper {
+  compute(positional, { start, end }) {
+    const string = positional[0];
+    return string.substring(start || 0, end);
+  }
+}
+```
+
+Class helpers are useful when the helper logic is fairly complicated, requires fine-grained control of the helper lifecycle, is stateful (we'll be discussing state in the next chapter), or requiring access to a service.
+
+### [Built-in Helpers](https://guides.emberjs.com/release/components/helper-functions/#toc_built-in-helpers)
