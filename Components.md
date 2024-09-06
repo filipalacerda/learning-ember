@@ -257,3 +257,67 @@ export default class Substring extends Helper {
 Class helpers are useful when the helper logic is fairly complicated, requires fine-grained control of the helper lifecycle, is stateful (we'll be discussing state in the next chapter), or requiring access to a service.
 
 ### [Built-in Helpers](https://guides.emberjs.com/release/components/helper-functions/#toc_built-in-helpers)
+
+## Component State and Actions
+
+While you can accomplish a lot in Ember using HTML templating, you'll need JavaScript to make your application interactive.
+
+### Tracked properties
+
+```javascript
+import Component from "@glimmer/component";
+import { tracked } from "@glimmer/tracking";
+
+export default class CounterComponent extends Component {
+  @tracked count = 0;
+}
+```
+
+`@tracked count = 0` This line creates a dynamic value called count, which you can stick inside of the template instead of hard coding it.
+
+When we use {{this.count}} in the component template, we're referring to a property that we defined in the JavaScript class.
+
+### HTML Modifiers and Actions
+
+To attach an event handler to an HTML tag, we use the `on` HTML modifier. HTML modifiers are an Ember syntax that allow us to attach logic to a tag.
+`<button type="button" {{on "click" this.increment}}>`
+
+To make those event handlers do something, we will need to define actions in the component JavaScript. An action is a JavaScript method that can be used from a template.
+
+```javascript
+@action
+  increment() {
+    this.count = this.count + 1;
+  }
+```
+
+### Passing Arguments to Actions
+
+```javascript
+ @action
+  change(amount) {
+    this.count = this.count + amount;
+  }
+```
+
+we'll update the template to turn the click handler into a function that passes an amount (for example, 1 and -1) in as an argument, using the fn helper:
+`<button type="button" {{on "click" (fn this.change 1)}}>+1</button>`
+
+An event handler takes a function as its second argument. When there are no arguments to the function, you can pass it directly, just like in JavaScript. Otherwise, you can build a function inline by using the fn syntax.
+
+### Computed Values
+
+Let's say we want to add a button to our counter that allows us to double the current count. Every time we press the button, the current count doubles.
+
+Example:
+
+1.  We'll add the multiple tracked property and an action called double that doubles the multiple.
+2.  To get the multiplied number into the template, we'll use a JavaScript getter.
+3.  ```javascript
+    get total() {
+        return this.count * this.multiple;
+      }
+    ```
+4.  The getter does not need any special annotations. As long as you've marked the properties that can change with @tracked, you can use JavaScript to compute new values from those properties: `<p>= {{this.total}}</p>`
+5.  You might have been tempted to make total a @tracked property and update it in the double and change actions. But this kind of "push-based" approach creates a lot of bugs. What happens if you create a new way to update multiple or amount properties and forget to update total at the same time?
+6.  When you use getters and functions to derive the state you need, you're taking advantage of the benefits of declarative programming. In declarative programming, you describe what you need, not how to get it, which reduces the number of places where you can make mistakes.
