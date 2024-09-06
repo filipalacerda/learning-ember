@@ -577,3 +577,9 @@ The code for calling the audio element's play and pause can be reused. It isn't 
 1. The template tag format is a powerful, new way to write components in Ember. It's a single-file format that combines the component's JavaScript and Glimmer template code. The <template> tag is used to keep a clear separation between the template language and the JavaScript around it.
 2. Template tag components use the file extension .gjs. This abbreviation is short for "Glimmer JavaScript". The file extension .gts is also supported for TypeScript components.
 3. See more information [here](https://guides.emberjs.com/release/components/template-tag-format/)
+
+### (New Capabilities)[https://guides.emberjs.com/release/components/template-tag-format/#toc_new-capabilities]
+
+1. Locally-scoped values
+2. Multiple components per file
+3. Installation: https://guides.emberjs.com/release/components/template-tag-format/#toc_installation

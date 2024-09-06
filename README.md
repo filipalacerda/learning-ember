@@ -14,3 +14,5 @@ Some features:
 - [Services](./Services.md)
 - [EmberData](./EmberData.md)
 - [Ember Inspector](./EmberInspector.md)
+
+Anatomy of an Ember App: https://guides.emberjs.com/release/getting-started/anatomy-of-an-ember-app/
