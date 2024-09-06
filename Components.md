@@ -321,3 +321,32 @@ Example:
 4.  The getter does not need any special annotations. As long as you've marked the properties that can change with @tracked, you can use JavaScript to compute new values from those properties: `<p>= {{this.total}}</p>`
 5.  You might have been tempted to make total a @tracked property and update it in the double and change actions. But this kind of "push-based" approach creates a lot of bugs. What happens if you create a new way to update multiple or amount properties and forget to update total at the same time?
 6.  When you use getters and functions to derive the state you need, you're taking advantage of the benefits of declarative programming. In declarative programming, you describe what you need, not how to get it, which reduces the number of places where you can make mistakes.
+
+#### Combining Arguments and State
+
+1. Instead of allowing the component itself to be responsible for the multiple, let's allow it to be passed in.
+1. In templates, we refer to arguments by prefixing them with the `@` sign (in this case `@multiple`). In order to compute this.total, we'll need to refer to the multiple argument from JavaScript.
+1. We refer to a component's argument from JavaScript by prefixing them with `this.args`:
+
+```javascript
+get total() {
+    return this.count * this.args.multiple;
+  }
+```
+
+1. The total is now computed by multiplying a piece of local state (this.count) with an argument (this.args.multiple). You can mix and match local state and arguments however you wish, which allows you to easily break up a component into smaller pieces.
+
+#### Combining Arguments and Actions
+
+1. We can also pass actions down to components via their arguments, which allows child components to communicate with their parents and notify them of changes to state.
+
+```javascript
+ @action
+  double() {
+    this.args.updateMultiple(this.args.multiple * 2);
+  }
+```
+
+1. Now, the Counter calls the updateMultiple argument (which we expect to be a function) with the new value for multiple, and the parent component can update the multiple.
+   `<Counter @multiple={{this.multiple}} @updateMultiple={{this.updateMultiple}} />`
+
