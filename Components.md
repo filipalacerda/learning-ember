@@ -483,3 +483,97 @@ Full guide [here](https://emberjs-1.gitbook.io/ember-component-patterns)
 {{/each-in}}
 ```
 
+## Template Lifecycle, DOM, and Modifiers
+
+1. For the most part, you should be able to build Ember applications without directly manipulating the DOM
+2. The best way to think about your component's output is to assume that it will be re-executed from the top every time anything changes in your application.
+3. The same philosophy that applies to changing text also applies to changing attributes
+
+## Conditional Attributes
+
+1. We could accomplish this requirement by using the if helper inside of an attribute `<div class={{if @isAdmin "superuser" "standard"}}>`
+
+## Event Handlers
+
+1. If you want to add an event handler to an HTML element, you can use the {{on element modifier.
+
+```javascript
+export default class CounterComponent extends Component {
+  @tracked count = 0;
+
+  @action
+  increment() {
+    this.count++;
+  }
+}
+
+<button type="button" {{on "click" this.increment}}>
+```
+
+## Manipulating Properties
+
+1. let's say you want to create an <audio> element, but pass it a blob as its srcObject.
+2. Since srcObject is a property and not an HTML attribute, you can use the prop element modifier from ember-prop-modifier like this:
+
+`<audio {{prop srcObject=this.blob}} />` 3. If you're looking at a piece of documentation written using HTML syntax, you can use the syntax as-is in your template, and use {{ to insert dynamic content. 4. On the other hand, if you're looking at JavaScript documentation that tells you to set a property on an element object, you can use {{prop to set the prop
+
+5. If you want to set a property, you can use the prop element modifier.
+
+## Calling Methods On First Render
+
+1. let's say we want to focus an <input> in a form as soon as the form is rendered. The web API for focusing an element is: `inputElement.focus();`
+2. This code needs to run after the element is rendered.
+3. The simplest way to accomplish this is by using the `did-insert` modifier from @ember/render-modifiers.
+
+```
+<form>
+  <input {{did-insert this.focus}}>
+</form>
+```
+
+### Abstracting the Logic Into a Custom Modifier
+
+1. Let's say we want to have this:
+
+```
+<form>
+  <input {{autofocus}}>
+</form>
+```
+
+2. Generate the autofocus modifier for your application:
+
+`ember generate modifier autofocus` 3. Now add the functionality to focus the element:
+
+```javascript
+app / modifiers / autofocus.js;
+import { modifier } from "ember-modifier";
+
+export default modifier((element) => element.focus());
+```
+
+3. [Ember-modifier](https://github.com/ember-modifier/ember-modifier#usage)
+
+## Communicating Between Elements in a Component
+
+1. While we could manage these DOM interactions in the component class we're better off using a modifier here. It lets us cleanly separate our concerns: **the component manages the state, and the modifier manages interactions with the DOM.**
+2. There are three reasons to reach for modifiers for DOM element interactions:
+
+A component, by itself, doesn't have direct access to DOM elements. We have to render the page, push an element back up into the component class, and only then can we safely refer to that element. This can sometimes require us to render the component's HTML twice in order for things to start working. Modifiers let us avoid this possible performance issue.
+By keeping state in the component and handling DOM method calls in a modifier, we can use autotracking and stick to 1-way data flow in the component. Further, we could change the component's own design later without having to change how we interact with the DOM element.
+The code for calling the audio element's play and pause can be reused. It isn't tied to this particular audio component. It can be tested independently, too!
+
+## [Out-of-Component Modifications](https://guides.emberjs.com/release/components/template-lifecycle-dom-and-modifiers/#toc_out-of-component-modifications)
+
+## Built-in Components
+
+1. Ember provides 2 components for building a form:
+
+[<Input>](https://guides.emberjs.com/release/components/built-in-components/#toc_input)
+[<Textarea>](https://guides.emberjs.com/release/components/built-in-components/#toc_textarea)
+
+## Template Tag Format
+
+1. The template tag format is a powerful, new way to write components in Ember. It's a single-file format that combines the component's JavaScript and Glimmer template code. The <template> tag is used to keep a clear separation between the template language and the JavaScript around it.
+2. Template tag components use the file extension .gjs. This abbreviation is short for "Glimmer JavaScript". The file extension .gts is also supported for TypeScript components.
+3. See more information [here](https://guides.emberjs.com/release/components/template-tag-format/)
