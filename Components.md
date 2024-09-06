@@ -57,3 +57,102 @@ Usage:
    Usage:
    if: `{{if condition value}}`
    if else: `{{if condition value1 value2}}`
+
+## Block Content
+
+Component templates can leave one or more placeholders that users can fill with their own HTML. These are called blocks.
+Example:
+
+```javascript
+<ExampleComponent>
+  This is the default <b>block content</b> that will
+  replace `{{yield}}` (or `{{yield to="default"}}`)
+  in the `ExampleComponent` template.
+</ExampleComponent>
+```
+
+Through Block Content, users of the component can add additional styling and behavior by using HTML, modifiers, and other components within the block.
+
+{{yield}} is named after a similar concept in scripting languages, including Ruby, JavaScript and Python. You don't need to understand the connection in order to use it, but if you're in the mood for a tangent, check out the yield operator in JavaScript
+
+You can think of using {{yield}} as leaving a placeholder for the content of the Component tag.
+
+### Conditional Blocks
+
+Sometimes, we may want to provide some default content if the user of a component hasn't provided a block.
+
+```javascript
+error-dialog.hbs
+<dialog>
+  {{#if (has-block)}}
+    {{yield}}
+  {{else}}
+    An unknown error occurred!
+  {{/if}}
+</dialog>
+```
+
+If we use `<ErrorDialog/>` it will render:
+
+```html
+<dialog>An unknown error occurred!</dialog>
+```
+
+### [Block Parameters](https://guides.emberjs.com/release/components/block-content/#toc_block-parameters)
+
+Blocks can also pass values back into the template, similar to a callback function in JavaScript.
+Example:
+
+```javascript
+<h1>{{@post.title}}</h1>
+<h2>{{@post.author}}</h2>
+
+{{@post.body}}
+
+<!-- usage -->
+<BlogPost @post={{@blogPost}} />
+```
+
+### [Named Blocks](https://guides.emberjs.com/release/components/block-content/#toc_named-blocks)
+
+If you want to yield content to different spots in the same component, you can use named blocks. You just need to specify a name for the yielded block, like this: `{{yield to="somePlace"}}`
+Example:
+
+```javascript
+popover.hbs
+
+<div class="popover">
+  <div class="popover__trigger">
+    {{yield this.isOpen to="trigger"}}
+  </div>
+  {{#if this.isOpen}}
+    <div class="popover__content">
+      {{yield to="content"}}
+    </div>
+  {{/if}}
+</div>
+
+Usage:
+<Popover>
+  <:trigger as |open|>
+    <button type="button">Click to {{if open "close" "open"}}  the popover!</button>
+  </:trigger>
+  <:content>
+     This is what is shown when I'm opened!
+  </:content>
+</Popover>
+```
+
+A yielded block without a name is called default:
+
+```javascript
+<Card>
+  <:title>
+    <h3>It's nice to have me. Sometimes</h3>
+  </:title>
+  <:default>
+    The card content will appear here!
+  </:default>
+</Card>
+
+```
