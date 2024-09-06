@@ -396,6 +396,90 @@ get total() {
 
 Full guide [here](https://emberjs-1.gitbook.io/ember-component-patterns)
 
-
 ## Patterns for Actions
-1. 
+
+1. Check tracked properties [guide](https://guides.emberjs.com/release/in-depth-topics/autotracking-in-depth/)
+2. Check the [guide](https://guides.emberjs.com/release/in-depth-topics/patterns-for-actions/)
+
+## Looping through Lists
+
+1. add an {{each}} helper to the template
+2. {{each}} will receive each message as its first block param, and we can use that item in the template block for the loop.
+
+```javascript
+{{#each this.messages as |message|}}
+    <Message
+      @username={{message.username}}
+      @userIsActive={{message.active}}
+      @userLocaltime={{message.localTime}}
+    >
+      {{{message.content}}}
+    </Message>
+  {{/each}}
+```
+
+3. !! Notice that we used triple curly brackets around {{{message.content}}}. This is how Ember knows to insert the content directly as HTML, rather than directly as a string. -> **Triple curly brackets are a convenient way to put dynamic HTML into Ember templates, but are not recommended for production apps.**
+
+#### Item Indexes
+
+1. The index of each item in the array is provided as a second block param. This can be useful at times if you need the index, for instance if you needed to print positions in a queue
+
+```javascript
+{{#each this.queue as |person index|}}
+```
+
+#### Empty Lists
+
+1. The {{#each}} helper can also have a corresponding {{else}}. The contents of this block will render if the array passed to {{#each}} is empty:
+
+```
+{{#each this.people as |person|}}
+  Hello, {{person.name}}!
+{{else}}
+  Sorry, nobody is here.
+{{/each}}
+```
+
+### Looping Through Objects
+
+1. here are also times when we need to loop through the keys and values of an object rather than an array,
+2. We can use the {{#each-in}} helper to do this:
+
+```javascript
+ categories = {
+    'Bourbons': ['Bulleit', 'Four Roses', 'Woodford Reserve'],
+    'Ryes': ['WhistlePig', 'High West']
+  };
+
+<ul>
+  {{#each-in this.categories as |category products|}}
+    <li>{{category}}
+      <ol>
+        {{#each products as |product|}}
+          <li>{{product}}</li>
+        {{/each}}
+      </ol>
+    </li>
+  {{/each-in}}
+</ul>
+
+```
+
+3. The first block parameter (category in the above example) is the key for this iteration, while the second block parameter (products) is the actual value of that key.
+
+#### Ordering
+
+1. An object's keys will be listed in the same order as the array returned from calling Object.keys on that object. If you want a different sort order, you should use Object.keys to get an array, sort that array with the built-in JavaScript tools, and use the {{#each}} helper instead.
+
+#### Empty lists
+
+1. The {{#each-in}} helper can have a matching {{else}}. The contents of this block will render if the object is empty, null, or undefined:
+
+```
+{{#each-in this.people as |name person|}}
+  Hello, {{name}}! You are {{person.age}} years old.
+{{else}}
+  Sorry, nobody is here.
+{{/each-in}}
+```
+
