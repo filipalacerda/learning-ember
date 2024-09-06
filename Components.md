@@ -350,3 +350,52 @@ get total() {
 1. Now, the Counter calls the updateMultiple argument (which we expect to be a function) with the new value for multiple, and the parent component can update the multiple.
    `<Counter @multiple={{this.multiple}} @updateMultiple={{this.updateMultiple}} />`
 
+## Patterns for Components
+
+### Argument Defaults
+
+1. At some point, you may want to add default values to your arguments if one wasn't passed to your component.
+2. Arguments are not mutable, so if you attempt to reassign a value on this.args, it'll fail
+3. Instead, you should define a getter on your component that provides the default value if the argument was not provided.
+4. For instance, if you wanted to create a tooltip icon that had a standard icon and class, you could do it like so:
+
+   ```javascript
+   import Component from "@glimmer/component";
+
+   export default class TooltipComponent extends Component {
+     get icon() {
+       return this.args.icon ?? "icon-info";
+     }
+
+     get tooltipClass() {
+       return this.args.tooltipClass + " tooltip";
+     }
+   }
+
+   <div class={{this.tooltipClass}}>
+      <i class={{this.icon}}></i>
+      {{@content}}
+   </div>
+   ```
+
+5. Note that because arguments are prefixed with @ in templates, and placed on args in the component definition, we can use the same name for our icon and tooltipClass getters, which is pretty convenient.
+6. We can also tell clearly when we look at the template for the tooltip that this.tooltipClass and this.icon are values that come from the class definition, and that means they probably have been used in some kind of dynamic code (in this case, our defaulting logic).
+
+### Attributes
+
+1. The positioning of ...attributes matters, with respect to the other attributes in the element it is applied to.
+2. Attributes that come before ...attributes can be overridden, but attributes that come after cannot.
+3. There is one exception to this, which is the class attribute. class will get merged, since its more often the case that users of the component want to add a class than completely override the existing ones. For class, the order of ...attributes will determine the order of merging.
+
+### Contextual Components
+
+1. The {{component}} helper can be used to defer the selection of a component to runtime. The <MyComponent /> syntax always renders the same component, while using the {{component}} helper allows choosing a component to render on the fly.
+2. This is useful in cases where you want to interact with different external libraries depending on the data. Using the {{component}} helper would allow you to keep different logic well separated.
+3. The first parameter of the helper is the name of a component to render, as a string. So {{component 'blog-post'}} is the same as using <BlogPost />.
+4. The real value of {{component}} comes from being able to dynamically pick the component being rendered.
+
+Full guide [here](https://emberjs-1.gitbook.io/ember-component-patterns)
+
+
+## Patterns for Actions
+1. 
